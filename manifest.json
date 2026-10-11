@@ -1,7 +1,7 @@
 {
- "name": "천억 캨린더 전체판",
+ "name": "천억 캘린더 전체판",
  "short_name": "천억전체",
- "description": "천억프로젝트 캘린더 모바일판 — 최근 30일 후보 목록(매수신호 아님)",
+ "description": "천억프로젝트 캘린더 폰 전체판 — PC 캘린더와 같은 화면 · 관찰용(매수신호 아님)",
  "start_url": "./index.html",
  "scope": "./",
  "display": "standalone",
