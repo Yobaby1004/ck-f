@@ -102,6 +102,13 @@
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || /^(127\.0\.0\.1|localhost)$/.test(location.hostname))) {
     navigator.serviceWorker.register('sw.js').catch(function (e) { L.오류.push('서비스워커: ' + e.message); });
   }
+  // ③-2 🔄 데이터 리셋 = 폰 판에서는 새로고침(PC 는 dashboard/data/*.js 13개를 그 자리에서 다시 읽지만 폰 판은 그 파일이 조각·통째로 바뀌어 '다시 읽기 실패'가 뜨므로)
+  if (typeof window.resetData === 'function') {
+    window.resetData = function () {
+      if (!confirm('최신 자료로 다시 엽니다(새로고침).\n진행할까요?')) return;
+      location.reload();
+    };
+  }
   // ⑤ 폰 실측 상자 = 주소 끝에 ?측정 을 붙였을 때만(평소엔 안 보임) · 첫 그림·준비·load 시간 · 받은 양(압축 기준) · 조각 수 · 메모리
   L.준비ms = performance.now();
   if (/측정|%EC%B8%A1%EC%A0%95/.test(location.search)) {

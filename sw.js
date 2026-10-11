@@ -7,7 +7,7 @@ const MAX_CHUNK = 7000;   // 조각 평균 약 29KB × 7000 ≈ 200MB
 const MAX_NET = 3000;     // 봉·생태계 등(종목을 많이 열어도 무한정 쌓이지 않게)
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil((async () => {
-  for (const k of await caches.keys()) if (k !== C_CHUNK && k !== C_NET) await caches.delete(k);   // 옛 판 기억 지움
+  for (const k of await caches.keys()) if (k.startsWith('ckf-') && k !== C_CHUNK && k !== C_NET) await caches.delete(k);   // 옛 판 기억만 지움(같은 주소의 가벼운 판 ck-m 기억은 건드리지 않음)
   await self.clients.claim();
 })()));
 function 조각인가(u) {
