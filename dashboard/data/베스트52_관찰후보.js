@@ -1,0 +1,2 @@
+/* 베스트52 전진 봉인 시험 v1 · 자동 생성(s7_forward.py) · 손으로 고치지 마세요 */
+window.BEST52_WATCH = {"kind": "seal", "updated_at": "2026-10-09T12:54:33+09:00", "rule": "그날 아침 이미 결과가 확정된 최근 120거래일에서 시장대금5보다 나았던 정도가 가장 높은 기계 1개의 상위 5종목", "date": 20261009, "status": "봉인실패", "official": false, "machine": null, "skill": null, "skill_days": null, "picks": [], "start_day": 20261012, "judge_at": [60, 120], "forward": {"graded_days": 0, "p1": null, "market5": null}, "judgements": {}, "checked_day": 20261009, "checked_status": "봉인실패", "note": "검증 안 됨 · 관찰용 · 매수추천 아님"};

@@ -1,0 +1,1 @@
+window.__조각("어사이드50_COLS","_\uc804\uccb4",["c","k","o","rk","s","t","wr","mr","mn","ag","ri","rd","dp","dd","cd","su","po","pc","chg","s120","s240","vr","sc","ps","pw","pp","pk","pe","pb","pl","px","pmx","pmn","lb"]);
