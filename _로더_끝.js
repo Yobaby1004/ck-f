@@ -117,7 +117,11 @@
       var mem = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) + 'MB' : '-';
       if (L.한가() && 한가때 === null && nav.loadEventEnd) 한가때 = performance.now();
       box.textContent = '⏱ 첫 그림 ' + (fcp ? (fcp / 1000).toFixed(1) : '-') + '초 · 준비 ' + (L.준비ms / 1000).toFixed(1) + '초 · load ' + (nav.loadEventEnd ? (nav.loadEventEnd / 1000).toFixed(1) : '…') + '초'
-        + (한가때 ? ' · 다 그림 ' + (한가때 / 1000).toFixed(1) + '초' : '') + '\n망으로 받은 양 ' + (bytes / 1048576).toFixed(1) + 'MB · 파일 ' + (res.length + 1) + '개 중 기억에서 ' + cached + '개 · 조각 ' + Object.keys(L.받음).length
+        + (한가때 ? ' · 다 그림 ' + (한가때 / 1000).toFixed(1) + '초' : '')
+        // 문서가 서비스워커를 거쳐 왔으면(=다시 방문) 전송량 숫자가 압축 전 크기로 부풀려 보여서 MB 대신 '기억에서 꺼낸 수'만 보인다
+        + (nav.workerStart > 0 ? '\n다시 방문 · 파일 ' + (res.length + 1) + '개 중 기억(서비스워커)에서 ' + cached + '개'
+                               : '\n첫 방문 · 망으로 받은 양 ' + (bytes / 1048576).toFixed(1) + 'MB(압축) · 파일 ' + (res.length + 1) + '개')
+        + ' · 조각 ' + Object.keys(L.받음).length
         + ' · 메모리 ' + mem + ' · ' + (L.한가() ? '✅ 한가' : '⏳ 받는 중') + (L.오류.length ? ' · ⚠ 오류 ' + L.오류.length : '');
     };
     setInterval(갱신, 1000); 갱신();
