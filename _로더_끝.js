@@ -113,10 +113,11 @@
       var nav = performance.getEntriesByType('navigation')[0] || {}, res = performance.getEntriesByType('resource');
       var fcp = (performance.getEntriesByType('paint').filter(function (e) { return e.name === 'first-contentful-paint'; })[0] || {}).startTime;
       var bytes = (nav.transferSize || 0) + res.reduce(function (s, e) { return s + (e.transferSize || 0); }, 0);
+      var cached = res.filter(function (e) { return !e.transferSize && e.decodedBodySize > 0; }).length;   // 기억(서비스워커·브라우저 캐시)에서 꺼낸 파일 = 전송 0
       var mem = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) + 'MB' : '-';
       if (L.한가() && 한가때 === null && nav.loadEventEnd) 한가때 = performance.now();
       box.textContent = '⏱ 첫 그림 ' + (fcp ? (fcp / 1000).toFixed(1) : '-') + '초 · 준비 ' + (L.준비ms / 1000).toFixed(1) + '초 · load ' + (nav.loadEventEnd ? (nav.loadEventEnd / 1000).toFixed(1) : '…') + '초'
-        + (한가때 ? ' · 다 그림 ' + (한가때 / 1000).toFixed(1) + '초' : '') + '\n받은 양 ' + (bytes / 1048576).toFixed(1) + 'MB(' + (res.length + 1) + '개 · 기억에서 꺼낸 것은 0) · 조각 ' + Object.keys(L.받음).length
+        + (한가때 ? ' · 다 그림 ' + (한가때 / 1000).toFixed(1) + '초' : '') + '\n망으로 받은 양 ' + (bytes / 1048576).toFixed(1) + 'MB · 파일 ' + (res.length + 1) + '개 중 기억에서 ' + cached + '개 · 조각 ' + Object.keys(L.받음).length
         + ' · 메모리 ' + mem + ' · ' + (L.한가() ? '✅ 한가' : '⏳ 받는 중') + (L.오류.length ? ' · ⚠ 오류 ' + L.오류.length : '');
     };
     setInterval(갱신, 1000); 갱신();
