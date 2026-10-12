@@ -17,7 +17,7 @@ function detail(w){var h='<p><b>놓친 경로:</b> '+E(w.why)+'</p><p><b>확인�
 if(w.today.length)h+='<p><b>당일 채점 목록:</b> '+w.today.map(function(x){return E(x[0])+' ('+(x[1]?'종가':'시가')+', '+(x[2]?'정시':'소급/미봉인')+')';}).join(' · ')+'</p>';
 if(w.prior.length)h+='<p><b>지난 5거래일 목록:</b> '+w.prior.map(function(x){return E(x[0]+' '+x[1])+' ('+(x[2]?'정시':'소급/미봉인')+')';}).join(' · ')+'</p>';
 if(w.events.length)h+='<p><b>전 거래일 매매일 흔적:</b> '+w.events.map(function(x){return E(x[0]+' '+x[1]+(x[2]?' / '+x[2]:'')+(x[3]?' / '+x[3]:''));}).join('<br>')+'</p>';
-if(w.news.length)h+='<p><b>장전뉴스 파일 언급:</b> '+w.news.map(function(x){return E(x[0]+' '+x[2]+' · '+x[1]);}).join(' · ')+'</p>';
+if(w.news.length)h+='<p><b>장전뉴스 파일 언급(원문 시각 미검증, 포착 판정 제외):</b> '+w.news.map(function(x){return E(x[0]+' '+x[2]+' · '+x[1]);}).join(' · ')+'</p>';
 if(w.inspector.length)h+='<p><b>검사관 기록:</b> '+w.inspector.map(function(x){return E(x[0]+' ['+x[2]+'] '+x[1]);}).join('<br>')+'</p>';
 if(w.after.length)h+='<p><b>당일 장마감 설명(사전 힌트 아님):</b> '+w.after.map(function(x){return E(x[0]+' '+x[1]+(x[2]?' / '+x[2]:'')+(x[3]?' / '+x[3]:''));}).join('<br>')+'</p>';
 h+='<p class="cs-note">개선 실험 후보: 같은 단서가 있던 비급등 종목까지 비교. 선별조건·추천 수·진입가격·비용을 고정하기 전에는 효과 미확정.</p>';return h;}
