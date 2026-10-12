@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta name="robots" content="noindex,nofollow">
-<!-- 📱 천억 캘린더 폰 전체판 셸 · 자동 생성 · 원본 = 천억프로젝트_캘린더_안목시안.html (2026-10-12 12:41 · 25,232,877 bytes) · 만든 도구 = 주도주\_모바일전체\_셸_변환.py · ★매수신호 아님 -->
+<!-- 📱 천억 캘린더 폰 전체판 셸 · 자동 생성 · 원본 = 천억프로젝트_캘린더_안목시안.html (2026-10-12 12:50 · 25,236,349 bytes) · 만든 도구 = 주도주\_모바일전체\_셸_변환.py · ★매수신호 아님 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11297,7 +11297,46 @@ function _악재경고Modal(k){
 <!-- GRADE_ADDITION_BEGIN 📝 채점 달력 (2026-10-07 사용자 지시) = 자료 dashboard/data/채점_요약.js(+ 채점_월/YYYY-MM.js 는 그 달을 열 때만) · 화면 dashboard/채점_뷰.js · 빌더 주도주/_천억장부/장부_달력.py(천억_장부_전진_0850 평일 08:50·21:30) · 관찰용 · 매수추천 아님 -->
 <!-- 📱 폰: 조각 = dashboard/data/채점_요약.js -->
 <script src="dashboard/채점_뷰.js?v=20261012c"></script>
-<link rel="stylesheet" href="dashboard/전수복기.css?v=20261012d">
+<style id="census-style">
+/* 9월 전수 복기 연구판: 채점 화면과 격리된 스타일 */
+#sec-census { padding:18px 24px 38px; margin:18px auto; max-width:1660px; min-height:400px; color:#d8e8f7; background:#0c1725; border:1px solid #2b5565; border-radius:18px; scroll-margin-top:96px; }
+#sec-census * { box-sizing:border-box; }
+#sec-census .cs-head {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#sec-census h2 {font-size:23px;color:#d9f5ec;margin:0 20px 0 0}
+#sec-census h3 {font-size:16px;color:#b9edf1;margin:0 0 10px}
+#sec-census p {line-height:1.65}
+#sec-census .cs-warning {font-size:12px;color:#f4d49a;background:#352819;border:1px solid #74592d;border-radius:8px;padding:11px 12px;margin:0 0 12px}
+#sec-census .cs-note {color:#a6b6cb;font-size:12px;line-height:1.5}
+#sec-census .cs-card,#sec-census .cs-week {border:1px solid #294158;border-radius:12px;padding:14px;background:#101f31;margin:12px 0}
+#sec-census .cs-highlight {background:#153348;padding:11px;border-radius:8px;color:#e7d99b;font-weight:700}
+#sec-census .cs-btn,#sec-census .cs-day-btn {border:1px solid #52798a;background:#1c3345;color:#e2f5f9;padding:7px 11px;border-radius:8px;cursor:pointer;font-size:12px}
+#sec-census .cs-btn:hover,#sec-census .cs-btn.active,#sec-census .cs-day-btn:hover {border-color:#88d4d9;background:#2c5864}
+#sec-census .cs-calendar {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+#sec-census .cs-weekday {text-align:center;color:#b7d5e5;padding:8px}
+#sec-census .cs-empty,#sec-census .cs-date {min-height:100px;padding:9px;background:#0d192a;border:1px solid #26455b;border-radius:9px}
+#sec-census .cs-date b {display:block;color:#bddcea}
+#sec-census .cs-date small {font-size:11px;color:#72889e}
+#sec-census .cs-day-btn {display:block;margin-top:7px}
+#sec-census .cs-mini {font-size:11px;color:#a8c4d7;margin-top:7px;line-height:1.45}
+#sec-census .cs-toolbar {display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:10px 0}
+#sec-census select,#sec-census input {border:1px solid #52798a;background:#13283c;color:#eef6fc;border-radius:7px;padding:8px;font-size:12px}
+#sec-census input {min-width:190px}
+#sec-census .cs-table-wrap {max-height:68vh;overflow:auto;border:1px solid #29495b;border-radius:9px}
+#sec-census .cs-table {width:100%;border-collapse:collapse;font-size:12px;text-align:left}
+#sec-census .cs-table th {position:sticky;top:0;background:#244055;color:#d4f5e9;padding:9px;z-index:1}
+#sec-census .cs-table td {border-top:1px solid #294056;padding:8px;vertical-align:top}
+#sec-census .cs-table tbody tr:nth-child(even) {background:#15283b}
+#sec-census .cs-table small {color:#9cbbcf}
+#sec-census summary {cursor:pointer;color:#9fe0e4}
+#sec-census .cs-detail {max-width:600px;background:#192f42;border:1px solid #3d6274;border-radius:8px;padding:9px;margin-top:7px;color:#d2e1ec;line-height:1.6}
+#sec-census .cs-detail p {margin:5px 0}
+@media(max-width:760px){#sec-census {padding:10px;margin:8px} #sec-census .cs-calendar{grid-template-columns:repeat(7,minmax(0,1fr));gap:2px} #sec-census .cs-date{min-height:82px;padding:3px} #sec-census .cs-day-btn{font-size:9px;padding:3px} #sec-census .cs-mini{font-size:9px} #sec-census .cs-table{min-width:780px}}
+
+#sec-grade .cs-inline,#sec-grade .cs-btn {border:1px solid #5c8b8c;background:#204258;color:#d7f5ef;border-radius:6px;cursor:pointer;font-size:10px;padding:3px 7px}
+#sec-grade .cs-inline {margin-top:4px;display:block}
+#sec-grade .cs-inline:hover,#sec-grade .cs-btn:hover {background:#376572}
+
+</style>
 <script src="통째/전수복기_2026-09.js"></script>
 <script src="dashboard/전수복기_뷰.js?v=20261012d"></script>
 <!-- GRADE_ADDITION_END -->
