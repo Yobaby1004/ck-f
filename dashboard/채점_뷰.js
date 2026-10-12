@@ -623,7 +623,10 @@
     } else {
       h += '<div style="font-size:11px;margin-top:3px;color:#55597f">가격 없음 ' + n + '</div>';
     }
-    return h + brainLine(k) + v4Line(k) + '</div>';
+    // 2026-09 연구판: 채점의 그 날짜 칸에서 시장 전체 +20% 복기로 바로 이동(기존 채점 클릭은 그대로).
+    var censusLink = k.slice(0, 7) === '2026-09' && W.censusDaily
+      ? '<button type="button" class="cs-inline" onclick="event.stopPropagation();censusDaily(\'' + k + '\')" title="이 날 시장 전체 +20% 종목과 88개 채점 목록 비교">전수 복기</button>' : '';
+    return h + brainLine(k) + v4Line(k) + censusLink + '</div>';
   }
 
   function monthTotals(y, m) {
@@ -774,6 +777,7 @@
       h += '<button class="ms-btn' + (mi === m ? ' active' : '') + (has && mi !== m ? ' has-data' : '') + '" onclick="gradeGoMonth(' + mi + ')" title="' + (mi + 1) + '월 ' + (has ? '채점 자료 있음' : '자료 없음(2022-06 부터)') + '">' + (mi + 1) + '월</button>';
     }
     h += '</div>';
+    if (ym === '2026-09' && W.censusGo) h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px"><button class="cs-btn" onclick="censusGo()">9월 전수 달력</button><button class="cs-btn" onclick="censusWeekly()">주간 보고서</button><button class="cs-btn" onclick="censusMonthly()">월간 보고서</button><span style="font-size:11px;color:#9aafc3;align-self:center">급등 전체와 채점 목록 대조 · 소급은 정시 포착 아님</span></div>';
     h += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">';
     ['일', '월', '화', '수', '목', '금', '토'].forEach(function (w, i) { h += '<div style="text-align:center;font-size:11px;color:' + (i === 0 ? '#ff6b81' : i === 6 ? '#6bb7ff' : '#8487bd') + '"' + (i === 0 ? ' title="그 달 첫 일요일 칸 📆 = 그 달 결산(많이 나온 종목 · 테마)"' : (i === 6 ? ' title="토요일 칸 📅 = 그 주(월~금) 결산(많이 나온 종목 · 테마)"' : '')) + '>' + w + '</div>'; });
     for (var i = 0; i < first; i++) h += '<div></div>';
