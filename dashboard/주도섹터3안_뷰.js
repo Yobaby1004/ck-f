@@ -18,6 +18,67 @@
   function MX(){ return window.JS3X_META || {}; }
   function DB(){ return window.JS3B5_DAYS || {}; }   // 🏅 관찰 후보5(2026-10-11 · 단순3안\관찰5.py)
   function MB(){ return window.JS3B5_META || {}; }
+  // HERMES3 2026-10-18 · 과거재생 저장본만 표시(선정·모형·원자료 변경 없음)
+  function DH(){ return window.HERMES3_DAYS || {}; }
+  function MH(){ return window.HERMES3_META || {}; }
+  function hKeys(){ return Object.keys(DH()).filter(function(k){ return /^\d{4}-\d{2}-\d{2}$/.test(k); }).sort(); }
+  function hLatest(){ var ks = hKeys(); return ks.length ? ks[ks.length - 1] : null; }
+  function hPicks(e){ return Array.isArray(e.selected) ? e.selected : []; }
+  function num(x){ return typeof x === 'number' && isFinite(x) ? x : null; }
+  function hScore(e){ return e && e.score && typeof e.score === 'object' ? e.score : null; }
+  function hDetail(s, code){ var ds = s && Array.isArray(s.details) ? s.details : []; return ds.filter(function(x){ return String(x && x.code || '') === String(code || ''); })[0] || null; }
+  function hOutcome(d){
+    if (!d) return '미확정';
+    if (d.Y === 1) return '+20 성공';
+    if (d.Y === 0) return '+20 실패';
+    return '미확정';
+  }
+  function hChip(p, k, s){
+    var d = hDetail(s, p && p.code), r = d ? num(d.return_pct) : null;
+    var tail = ' <small class="js3-hout ' + (d && d.Y === 1 ? 'ok' : d && d.Y === 0 ? 'fail' : 'wait') + '">' + E(hOutcome(d)) + ' · ' + (r == null ? '미확정' : '비용후 ' + pc(r)) + '</small>';
+    return chip(p.name || p.code, p.code, k, tail, '헤르메스 추천주 3개 ' + k);
+  }
+  function hDayLine(s){
+    if (!s) return '<div class="js3-hscore wait">채점 대기</div>';
+    var hit = num(s.hit), unknown = num(s.unknown), cash = num(s.cash), r = num(s.return_pct);
+    return '<div class="js3-hscore">+20 ' + (hit == null ? '미상' : hit) + '/' + (num(s.budget) == null ? '3' : s.budget) + ' · 불명 ' + (unknown == null ? '미상' : unknown) + ' · 현금 ' + (cash == null ? '미상' : cash) + ' · 비용후 ' + (r == null ? '미확정' : pc(r)) + '</div>';
+  }
+  function hCell(k){
+    var e = DH()[k]; if (!e) return '';
+    var names = hPicks(e).map(function(p){ return p.name || p.code; }).join(' · '), s = hScore(e);
+    return '<div class="js3-hcell" title="' + E('헤르메스 추천주 3개 · ' + k + ' · ' + (e.status || 'UNKNOWN') + ' · ' + (names || '확인된 종목 없음') + ' · 과거재생(B)') + '"><b>헤르메스 추천주 3개</b><br>' + E(names || '확인된 종목 없음') + hDayLine(s) + '</div>';
+  }
+  function hReportHref(meta){
+    var u = String(meta && meta.score_summary && meta.score_summary.report_url || '');
+    return /^dashboard\/[A-Za-z0-9가-힣_\-]+\.html$/.test(u) ? u : '';
+  }
+  function hPct2(v){ return num(v) == null ? '미확정' : (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%'; }
+  function hSummaryHTML(){
+    var s = MH().score_summary; if (!s || typeof s !== 'object') return '';
+    var href = hReportHref(MH()), mean = num(s.mean_return_pct), median = num(s.median_return_pct), base = num(s.baseline_amount3_mean_pct), diff = num(s.comparison_paired_diff_amount3_pct);
+    return '<div class="js3-hsummary"><b>헤르메스3 과거저장 ' + E(s.planned_days == null ? '전체' : s.planned_days + '일') + ' 채점 요약</b><div class="js3-sm">적중 H ' + E(s.H == null ? '미상' : s.H) + ' / 전체 슬롯 ' + E(s.planned_slots == null ? '미상' : s.planned_slots) + ' · 미확정 ' + E(s.U == null ? '미상' : s.U) + '</div>'
+      + '<div class="js3-sm">평균 ' + hPct2(mean) + ' · 중앙 ' + hPct2(median) + ' · 손익 확인 ' + E(s.known_return_days == null ? '미상' : s.known_return_days) + '/' + E(s.planned_days == null ? '미상' : s.planned_days) + '일 + 미확정 ' + E(s.unknown_return_days == null ? '미상' : s.unknown_return_days) + '일</div>'
+      + '<div class="js3-sm">시장대금3 ' + hPct2(base) + (diff == null ? '' : ' · 같은 날 짝차이 ' + hPct2(diff).replace('%', '%p') + (num(s.comparison_paired_return_days_amount3) == null ? '' : ' (' + s.comparison_paired_return_days_amount3 + '일)')) + ' · <b style="color:#ff9aaa">' + E(s.verdict || '전체 관문 미평가') + '</b></div>'
+      + (href ? '<a class="js3-hreport" href="' + E(href) + '" target="_blank" rel="noopener">전체 채점표</a>' : '') + '</div>';
+  }
+  function hHTML(k, recent){
+    var e = DH()[k]; if (!e) return '';
+    var meta = MH(), ps = hPicks(e), src = String(e.source_file || ''), hash = String(e.forecast_sha256 || ''), score = hScore(e);
+    var h = '<div class="js3-hermes"' + (recent ? ' id="js3-hermes-latest"' : '') + '><div class="js3-hhd"><b>헤르메스 추천주 3개</b> · ' + E(recent ? '독립 최근저장본' : '날짜별 저장본') + ' <b>' + E(k) + '</b>';
+    if (recent) h += ' <button class="js3-wbtn" onclick="js3HermesLatest()">해당날짜보기</button>';
+    h += '</div><div class="js3-sm">' + E('명단 날짜 D ' + (e.D || k) + ' · 자료 기준 P ' + (e.P || '미상') + ' · ' + (e.kind || '과거재생') + ' · 상태 ' + (e.status || 'UNKNOWN')) + '</div>';
+    h += '<div class="js3-hchips">' + ps.map(function(p){ return hChip(p, k, score); }).join('') + (ps.length ? '' : '<span>확인된 종목 없음</span>') + '</div>' + hDayLine(score);
+    h += '<div class="js3-sm">' + E('현금 칸 ' + (e.cash_slots == null ? '미상' : e.cash_slots) + ' · 불명 칸 ' + (e.unknown_slots == null ? '미상' : e.unknown_slots) + ' · 버전 ' + (e.source_run || '미상') + ' · 방법 ' + (e.method || '미상')) + '</div>';
+    h += '<div class="js3-sm i" title="' + E(src) + '">원저장경로 ' + E(short(src, 100) || '미상') + '</div><div class="js3-sm i" style="overflow-wrap:anywhere">SHA-256 ' + E(hash || '미상') + '</div>';
+    h += '<div class="js3-sm i">' + E('원자료 시각 ' + (e.selected_at || '미상') + ' · 시점 유형 ' + (e.temporal_kind || '미상') + ' · 품질 ' + (e.quality || '미상')) + '</div>';
+    h += '<div class="js3-sm">과거재생(B)·당시 실시간 발송 아님·관찰용 · 매수 추천 아님</div><div class="js3-sm i">당일고가/전일종가 +20 판정은 시가매수 +20 체결 보장이 아님 · 시가→종가 비용 0.35%p</div>';
+    if (recent) h += '<div class="js3-sm i">' + E('현재 3안 날짜 ' + (latest() || '없음') + '와 별개인 저장본 · ' + (meta.run_status || '') + ' · 갱신 ' + (meta.updated_at || '미상')) + '</div>';
+    return h + '</div>';
+  }
+  function hLatestBox(){
+    var k = hLatest();
+    return hSummaryHTML() + (k ? hHTML(k, true) : '<div class="js3-hermes"><b>헤르메스 추천주 3개</b><div class="js3-sm">저장본 없음 · 실시간 추천 아님</div><div class="js3-sm i">' + E(MH().run_status || '') + '</div></div>');
+  }
   function DW(){ return window.JS3W || null; }   // 🌾 아침 일꾼(2026-10-09 · 단순3안\일꾼현황.py)
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   function key(y, m, d){ return y + '-' + pad(m + 1) + '-' + pad(d); }
@@ -80,6 +141,8 @@
       + '.js3-b5hd{font-size:13.5px;color:#f3dc8a;margin-bottom:6px}.js3-kind.b5k{background:rgba(214,170,40,.18);color:#f3dc8a}'
       + '.js3-b5row{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}.js3-b5p{background:#151a2e;border:1px solid rgba(214,170,40,.28);border-radius:10px;padding:3px 8px;font-size:12px;color:#dce8ff}'
       + '.js3-b5p i,.js3-b5 .js3-sm i{font-style:normal;color:#8487bd;font-size:11px}.js3-b5no{background:#d6aa28;color:#1a1200;border-radius:6px;padding:0 6px;font-size:11px;font-weight:800}'
+      // HERMES3 2026-10-18
+      + '.js3-hermes,.js3-hsummary{margin:10px 0;padding:10px 12px;border:1px solid rgba(177,146,255,.55);border-radius:12px;background:rgba(177,146,255,.07);color:#dce8ff}.js3-hsummary{border-color:rgba(177,146,255,.8);background:rgba(177,146,255,.12)}.js3-hhd{font-size:14px;color:#dbcaff}.js3-hchips{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0}.js3-hcell{margin-top:4px;padding-top:3px;border-top:1px dashed rgba(177,146,255,.4);font-size:10px;color:#dbcaff;white-space:normal;overflow-wrap:anywhere}.js3-hscore{font-size:10px;color:#d9cffb;margin-top:2px}.js3-hscore.wait{color:#9aa3c7}.js3-hout{font-size:10px;margin-left:2px}.js3-hout.ok{color:#5effd6}.js3-hout.fail{color:#ff9aaa}.js3-hout.wait{color:#9aa3c7}.js3-hreport{display:inline-block;margin-top:5px;color:#cbb6ff;font-size:12px}'
       + '.js3-b5 a{color:#9fd0ff}.js3-b5st{margin-top:5px;padding-top:4px;border-top:1px dashed rgba(214,170,40,.3)}';
     document.head.appendChild(st);
   }
@@ -94,9 +157,9 @@
     return sec;
   }
 
-  function chip(n, c, k, tail){
+  function chip(n, c, k, tail, meta){
     if (!n) return '';
-    return '<span class="js3-chip" onclick="js3Stock(this,\'' + k + '\')" data-code="' + E(c || '') + '" data-name="' + E(n) + '" data-rate="0" data-amount="0" data-meta="🌅 주도3안 ' + E(k) + '" title="종목 창 열기">' + E(n) + (tail || '') + '</span>';
+    return '<span class="js3-chip" onclick="js3Stock(this,\'' + k + '\')" data-code="' + E(c || '') + '" data-name="' + E(n) + '" data-rate="0" data-amount="0" data-meta="' + E(meta || ('🌅 주도3안 ' + k)) + (meta ? '" data-source="헤르메스" data-hermes-meta="' + E(meta) : '') + '" title="종목 창 열기">' + E(n) + (tail || '') + '</span>';
   }
   function kindLabel(e){ return e.k === '봉인' ? '● ' + (e.t || '') + ' 봉인' : e.k === '늦은봉인' ? '◐ ' + (e.t || '') + ' 늦은 봉인(장 시작 뒤)' : '○ 재현(그날 아침 봉인 아님)'; }
 
@@ -459,6 +522,8 @@
       + '<br>달력 칸 아래 v1·예(예상체결)·X·📨 = 그날 아침 출석(✓ 됨 · ✗ 안 됨 · ◐ 늦음·일부 · ○ X 없음) · 결석이 있으면 빨간 바탕 · 칸을 누르면 맨 위에 증거 상자(온 시각 · 봉인 시각·지문 · 예상체결 값 시각 · 텔레그램 보낸 시각 · 예약 결과)'
       + '<br>🏅 관찰 후보5 = 베스트52 전진 봉인 P1(2026-10-11 맨 위 띠를 이 달력으로 합침 · 오늘 카드 🏅 상자 끝 줄 = 08:40 작업 상태·전진 채점·판정·근거): 🏅 베스트 기계(시점등급 R 40개) 중 그날 후보가 있고 최근 120거래일 실력(같은 날 시장대금5 대비 5거래일 결과 차이 평균 · 40일 이상)이 0보다 큰 1등 기계의 상위 5(전 거래일 거래대금 5억 이상 보통주)'
       + ' · 칸 아래 🏅 줄 = 첫 종목 외 n · 5칸 평균(그날 시가 → 5거래일 종가 · 비용 0.35%p) · 날짜를 누르면 종목·기계·결과 · ● 08:40 봉인(10/12부터) · ○ 재현(같은 식으로 그날 전 거래일까지 자료만 써서 다시 계산 · 참고) · 개발 시험에서 탈락 · 관찰용 · 매수 추천 아님</div>';
+    // HERMES3 2026-10-18 · 3안 날짜와 독립된 최근 저장본
+    h += hLatestBox();
     h += todayBox();
     h += '<div class="cal-header" style="margin-top:14px"><div class="cal-nav">'
       + '<button class="nav-btn" onclick="js3Year(-1)" title="이전 해">&#8249;</button>'
@@ -469,20 +534,20 @@
       + '<div class="cal-desc" data-desc="js3" style="font-size:11.5px;color:#8487bd;margin-left:10px;line-height:1.55">● 봉인 = 그날 아침 만든 것 · ○ 재현 = 같은 규칙으로 다시 계산(참고) · <b style="color:#5effd6">초록</b> = 정답 섹터 · ★ = 실제 대장 · n/3 = 섹터 맞힘 · <span style="color:#e6c76a">🏅 = 관찰 후보5(베스트52 08:40 봉인 · 첫 종목 외 n · 5칸 평균 5거래일 결과)</span> · 칸 아래 v1·예·X·📨 = 그날 아침 출석(예 = 예상체결 · 누르면 증거)</div></div></div>';
     h += '<div class="month-strip">';
     for (var mi = 0; mi < 12; mi++){
-      var pre = y + '-' + pad(mi + 1), nv = 0, ns = 0, sv = 0;
+      var pre = y + '-' + pad(mi + 1), nv = 0, ns = 0, sv = 0, nh = hKeys().filter(function(k){ return k.indexOf(pre) === 0; }).length; // HERMES3 2026-10-18
       Object.keys(data).forEach(function(k){ if (k.indexOf(pre) === 0){ nv++; if (data[k].S != null){ ns++; sv += data[k].S; } } });
-      h += '<button class="ms-btn' + (mi === m ? ' active' : '') + (nv && mi !== m ? ' has-data' : '') + '" onclick="js3GoMonth(' + mi + ')" title="' + (mi + 1) + '월 ' + (nv ? nv + '일' + (ns ? ' · 섹터 적중 ' + Math.round(100 * sv / ns) + '%' : '') : '카드 없음') + '">' + (mi + 1) + '월</button>';
+      h += '<button class="ms-btn' + (mi === m ? ' active' : '') + ((nv || nh) && mi !== m ? ' has-data' : '') + '" onclick="js3GoMonth(' + mi + ')" title="' + (mi + 1) + '월 ' + (nv ? nv + '일' + (ns ? ' · 섹터 적중 ' + Math.round(100 * sv / ns) + '%' : '') : '3안 카드 없음') + (nh ? ' · 헤르메스 저장본 ' + nh + '일' : '') + '">' + (mi + 1) + '월</button>';
     }
     h += '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
     WD.forEach(function(w, i){ h += '<div style="text-align:center;font-size:11px;color:' + (i === 0 ? '#ff6b81' : i === 6 ? '#6bb7ff' : '#8487bd') + '">' + w + '</div>'; });
     for (var i = 0; i < first; i++) h += '<div></div>';
     var nMon = 0, sMon = 0, cMon = 0, nAtt = 0, nAbs = 0;
     for (var d = 1; d <= days; d++){
-      var k = key(y, m, d), e = data[k], ar = attOf(k), ap = !ar && attPending(k);
+      var k = key(y, m, d), e = data[k], ar = attOf(k), ap = !ar && attPending(k), he = DH()[k]; // HERMES3 2026-10-18
       var xb = (typeof window.js3CellBtn === 'function') ? window.js3CellBtn(k, d, new Date(y, m, d).getDay()) : '';   // 📅 토요일 · 📆 첫 일요일 결산 단추 = 채점_뷰.js(2026-10-11)
       if (ar){ nAtt++; if ((ar.결석 || []).length) nAbs++; }
       if (!e){   // 카드 칸이 없어도 출석 기록이 있거나 기록 전이면 눌러서 볼 수 있게
-        h += (ar || ap) ? '<div class="js3-cell empty att' + (S.sel === k ? ' sel' : '') + '" data-date="' + k + '" onclick="js3Pick(\'' + k + '\')" title="' + E(fdk(k) + ' · ' + attTitle(ar)) + '"><div class="js3-cd">' + d + '</div>' + (ar ? attMarks(ar) : attWait()) + xb + '</div>'
+        h += (ar || ap || he) ? '<div class="js3-cell empty att' + (S.sel === k ? ' sel' : '') + '" data-date="' + k + '" onclick="js3Pick(\'' + k + '\')" title="' + E(fdk(k) + (he ? ' · 헤르메스 추천주 3개 · 과거재생(B)' : '') + (ar || ap ? ' · ' + attTitle(ar) : '')) + '"><div class="js3-cd">' + d + '</div>' + (ar ? attMarks(ar) : ap ? attWait() : '') + hCell(k) + xb + '</div>'
           : '<div class="js3-cell empty" data-date="' + k + '"><div class="js3-cd">' + d + '</div>' + xb + '</div>';
         continue;
       }
@@ -492,7 +557,7 @@
         + (e.c || []).map(function(it, j){
             var sc = it.hit === true ? 'color:#5effd6;font-weight:700' : it.hit === false ? 'color:#6f7690' : 'color:#dce8ff';
             return '<div class="js3-cl">' + NUM[j] + ' <span style="' + sc + '">' + E(short(it.s, 6)) + '</span>' + (it.r ? ' <span style="color:#c9cbe8">' + E(short(it.r.n, 6)) + (it.r.lead ? '★' : '') + '</span>' : '') + '</div>';
-          }).join('') + b5Cell(k) + (ar ? attMarks(ar) : ap ? attWait() : '') + xb + '</div>';
+          }).join('') + b5Cell(k) + hCell(k) + (ar ? attMarks(ar) : ap ? attWait() : '') + xb + '</div>';
     }
     h += '</div><div class="js3-foot">이번 달 ' + nMon + '일' + (cMon ? ' · 섹터 적중 ' + Math.round(100 * sMon / cMon) + '% (' + cMon + '일 채점)' : '')
       + (nAtt ? ' · 출석 기록 ' + nAtt + '일' + (nAbs ? ' · <b style="color:#ff6b6b">결석 있는 날 ' + nAbs + '일</b>' : ' · 결석 없음') : '') + '</div>';
@@ -513,11 +578,11 @@
     return ov;
   }
   function dayModal(k){
-    var e = D()[k], ab = attBox(k); if (!e && !ab) return;
+    var e = D()[k], ab = attBox(k); if (!e && !ab && !DH()[k]) return; // HERMES3 2026-10-18
     css();
     var ov = modal(), box = document.getElementById('js3-modal-box');
     box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div id="js3-mbody" style="flex:1">' + ab
-      + (e ? dayHTML(k, e) : '<div class="js3-tline"><b>' + fdk(k) + '</b> <span class="js3-sm" style="display:inline">이 날 카드 칸은 달력 자료에 아직 없음(단순3안\\달력.py replay 뒤 생김)</span></div>') + '</div>'
+      + (e ? dayHTML(k, e) : '<div class="js3-tline"><b>' + fdk(k) + '</b> <span class="js3-sm" style="display:inline">이 날 카드 칸은 달력 자료에 아직 없음(단순3안\\달력.py replay 뒤 생김)</span></div>') + hHTML(k, false) + '</div>'
       + '<button onclick="document.getElementById(\'js3-modal\').style.display=\'none\'" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#dce8ff;border-radius:8px;padding:4px 10px;cursor:pointer">✕</button></div>'
       + (e && e.fp ? '<div style="font-size:10.5px;color:#6a82a8;margin-top:8px">봉인 지문 ' + E(e.fp) + '</div>' : '');
     ov.style.display = 'flex';
@@ -532,7 +597,12 @@
   window.js3Year = function(dy){ init(); S.y += dy; render(); };
   window.js3GoMonth = function(mi){ init(); S.m = mi; render(); };
   window.js3Latest = function(){ S.y = 0; init(); render(); };
-  window.js3Pick = function(k){ if (!D()[k] && !attOf(k) && !attPending(k)) return; S.sel = k; render(); dayModal(k); };
+  window.js3Pick = function(k){ if (!D()[k] && !attOf(k) && !attPending(k) && !DH()[k]) return; S.sel = k; render(); dayModal(k); };
+  // HERMES3 2026-10-18 · 기존 js3Latest의 3안 최신 정책은 바꾸지 않음
+  window.js3HermesLatest = function(){
+    var k = hLatest(); if (!k) return;
+    var t = new Date(k + 'T00:00:00'); S.y = t.getFullYear(); S.m = t.getMonth(); S.sel = k; render(); dayModal(k);
+  };
   window.js3Stock = function(el, k){
     if (typeof window._openStock === 'function' && el.getAttribute('data-code')) window._openStock(el, function(){ window.js3Pick(k); });
   };
@@ -545,6 +615,8 @@
     document.head.appendChild(s);
   }
   function loadX(){
+    // HERMES3 2026-10-18
+    loadData('js3h-data', '주도섹터3안_헤르메스3.js', '헤르메스 추천주 3개');
     loadData('js3x-data', '주도섹터3안_X.js', 'v2-X');
     loadData('js3w-data', '주도섹터3안_일꾼.js', '🌾 아침 일꾼');
     loadData('js3b5-data', '주도섹터3안_관찰5.js', '🏅 관찰 후보5');
@@ -566,21 +638,30 @@
   window.js3Refresh = function(all){
     if (S.busy && Date.now() - (S.busyAt || 0) < 20000) return;   // 읽는 중이면 건너뜀(20초 넘게 안 끝나면 다시 읽음)
     S.busy = true; S.busyAt = Date.now();
-    var pw = (DW() || {}).만든때, px = MX().만든때, pb = (window.BEST52_WATCH || {}).updated_at, n = 3;
+    var pw = (DW() || {}).만든때, px = MX().만든때, pb = (window.BEST52_WATCH || {}).updated_at, ph = MH().updated_at, n = 4; // HERMES3 2026-10-18
     var fin = function(){
       if (--n) return;
-      var changed = !!all || (DW() || {}).만든때 !== pw || MX().만든때 !== px || (window.BEST52_WATCH || {}).updated_at !== pb;   // 🏅 08:40 봉인이 오면 다시 그림
+      var changed = !!all || (DW() || {}).만든때 !== pw || MX().만든때 !== px || (window.BEST52_WATCH || {}).updated_at !== pb || MH().updated_at !== ph;   // 🏅 08:40 봉인이 오면 다시 그림
       var end = function(){ S.busy = false; try { if (changed) render(); else paintWork(); } catch (err){ console.warn('🌅 다시 보기 오류', err); } };
       if (changed) reloadData('js3d-data', '주도섹터3안.js', function(){ if (all) reloadData('js3b5-data', '주도섹터3안_관찰5.js', end); else end(); }); else end();
     };
+    reloadData('js3h-data', '주도섹터3안_헤르메스3.js', fin); // HERMES3 2026-10-18
     reloadData('js3w-data', '주도섹터3안_일꾼.js', fin);
     reloadData('js3x-data', '주도섹터3안_X.js', fin);
     reloadData('js3b52-data', '베스트52_관찰후보.js', fin);
   };
+  // HERMES3 2026-10-18 · 장전 이외에도 저장본 updated_at만 1분마다 확인(모델 호출 없음)
+  function refreshHermes(){
+    if (S.hbusy && Date.now() - (S.hbusyAt || 0) < 20000) return;
+    S.hbusy = true; S.hbusyAt = Date.now(); var before = MH().updated_at;
+    reloadData('js3h-data', '주도섹터3안_헤르메스3.js', function(){
+      S.hbusy = false; try { if (MH().updated_at !== before) render(); else paintWork(); } catch (err){ console.warn('헤르메스 화면 오류', err); }
+    });
+  }
   function tick(){
     if (document.hidden || !document.getElementById('sec-js3')) return;
     var nw = nowInfo();
-    if (isTrading(nw.k) && nw.hm >= 805 && nw.hm <= 940) window.js3Refresh(false); else paintWork();
+    if (isTrading(nw.k) && nw.hm >= 805 && nw.hm <= 940) window.js3Refresh(false); else refreshHermes();
   }
   function boot(){
     try { init(); render(); loadX(); } catch (err){ console.warn('🌅 주도3안 화면 오류', err); }
