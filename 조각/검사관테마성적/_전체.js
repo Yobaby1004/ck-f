@@ -1,1 +1,1 @@
-window.__조각("검사관테마성적","_\uc804\uccb4",{"소급":{"week":{"n":36,"pred_top10":20,"pred_k":180,"base_top10":26,"base_k":180},"month":{"n":31,"pred_top10":1,"pred_k":93,"base_top10":3,"base_k":93}},"실전":{"week":{"n":9,"pred_top10":7,"pred_k":45,"base_top10":10,"base_k":45}}});
+window.__조각("검사관테마성적","_\uc804\uccb4",{"소급":{"week":{"n":36,"pred_top10":20,"pred_k":180,"base_top10":26,"base_k":180},"month":{"n":32,"pred_top10":1,"pred_k":96,"base_top10":3,"base_k":96}},"실전":{"week":{"n":10,"pred_top10":7,"pred_k":50,"base_top10":11,"base_k":50}}});
