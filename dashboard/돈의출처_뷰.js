@@ -58,6 +58,7 @@
   function todayCard(m){
     var k = latest(); if (!k) return '<div class="mn-box">자료 없음</div>';
     var D = days()[k], h = '<div class="mn-box"><div class="mn-hd">📅 ' + E(k) + ' 그날 돈을 켠 출처 <span class="mn-sub">(캘린더 최신 날 · 테마 ' + D.l.length + '줄)</span></div>';
+    if (D.coverage === 'NO_GROUP_THEME_CONFIRMED') return h + '<div class="mn-sub" style="padding:10px 0">원본 ' + E(D.raw_rows || '') + '행 수신 확인. 전부 개별이슈여서 집계할 공통 테마가 없습니다. 자료 누락이나 수익 0을 뜻하지 않습니다.</div></div>';
     if (D.ai) h += '<div class="mn-sub" style="margin-bottom:4px">AI·반도체 테마 돈 몫 <b style="color:#76b900">' + pct(D.ai[0]) + '%</b> · 지난 20일 평균 ' + pct(D.ai[1]) + '% (' + sg(D.ai[0] - D.ai[1]) + '%p)</div>';
     D.l.forEach(function(L){
       h += '<div class="mn-ln">' + chip(L[1]) + (L[2] ? '<span style="color:#7f86a8;font-size:11px">+부</span> ' + chip(L[2]) : '') + ' <b>' + E(L[0]) + '</b>'
@@ -141,7 +142,7 @@
       + '<div class="cal-title" style="min-width:120px;text-align:center">' + y + '년</div>'
       + '<button class="nav-btn" onclick="moneyYear(1)" title="다음 해">&#8250;</button><span class="cal-badge-name" title="이 달력 = 맨 위 [💸 돈의출처] 버튼" onclick="moneyGo()">💸 돈의출처</span></div>'
       + '<div class="cal-right"><button class="today-btn" onclick="moneyLatest()">최신</button>'
-      + '<div style="font-size:11.5px;color:#8487bd;margin-left:10px;line-height:1.55">💸 칸 = 그날 캘린더 첫 테마의 출처(칩) + 그날 나온 다른 출처(점) · 노란 테두리 = 전진 기록 날 · 자료 ' + E(me.made || '') + ' · 캘린더 ' + E(me.cal_last || '') + ' · 미국 ' + E(me.us_last || '') + ' · 관찰용 · 매수추천 아님</div>'
+      + '<div style="font-size:11.5px;color:#8487bd;margin-left:10px;line-height:1.55">💸 칸 = 그날 캘린더 첫 테마의 출처(칩) + 그날 나온 다른 출처(점) · 노란 테두리 = 전진 기록 날 · 자료 ' + E(me.made || '') + ' · 캘린더 ' + E(me.cal_last || '') + ' · 원문 수신 ' + E(me.source_last || me.cal_last || '') + ' · 미국 ' + E(me.us_last || '') + ' · 관찰용 · 매수추천 아님</div>'
       + '</div></div>';
     h += '<div class="mn-row">' + todayCard(m) + moneyBox(m) + '</div>' + hypBox(m);
     h += '<div class="month-strip">';
@@ -190,6 +191,7 @@
     var h = '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><div style="font-size:18px;font-weight:800;color:#fff">💸 ' + E(k) + ' 그날 돈을 켠 출처 <span style="font-size:12px;font-weight:400;color:#8487bd">(테마 ' + D.l.length + '줄 · 관찰용 · 매수추천 아님)</span></div>'
       + (D.ai ? '<div style="font-size:12px;color:#c9cbe8;margin-top:4px">AI·반도체 테마 돈 몫 <b style="color:#76b900">' + pct(D.ai[0]) + '%</b> · 지난 20일 평균 ' + pct(D.ai[1]) + '%</div>' : '')
       + '</div><button onclick="document.getElementById(\'mn-modal\').style.display=\'none\'" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#dce8ff;border-radius:8px;padding:4px 10px;cursor:pointer">✕</button></div>';
+    if (D.coverage === 'NO_GROUP_THEME_CONFIRMED') h += '<div class="mn-sub" style="margin-top:10px">원본 ' + E(D.raw_rows || '') + '행 수신 확인. 개별이슈만 있는 날입니다. 공통 테마 몫은 계산 불가이며 수익 0이나 자료 누락이 아닙니다.</div>';
     h += '<div style="margin-top:10px">' + D.l.map(function(L, i){
       return '<div style="padding:6px 0;border-top:1px dashed rgba(255,255,255,.08);font-size:13px"><span style="color:#6f72a8">' + (i + 1) + '.</span> ' + chip(L[1]) + (L[2] ? ' <span style="color:#7f86a8;font-size:11px">+부</span> ' + chip(L[2]) : '') + ' <b>' + E(L[0]) + '</b>'
         + (L[3] ? '<div style="font-size:11.5px;color:#8fa0d8;margin-top:2px">근거 단어 ' + E(String(L[3]).replace(/\|/g, ' · ')) + '</div>' : '')
