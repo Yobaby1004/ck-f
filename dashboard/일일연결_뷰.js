@@ -19,7 +19,25 @@ function render(){
  (d.buttons||[]).forEach(function(x){html+='<tr style="border-top:1px solid rgba(255,255,255,.09)"><td style="padding:5px">'+e(x.k)+'</td><td>'+e(x.d||'미확인')+'</td><td>'+e(x.기대||'수동 입력')+'</td><td>'+e(x.판정)+' '+e(x.비고||'')+'</td></tr>';});
  html+='</tbody></table></div>';
  html+='<div style="margin-top:8px"><b>남은 문제</b><ul style="margin:3px 0">'+issues.map(function(x){return '<li>'+e(x.item)+': '+e(x.reason)+'</li>';}).join('')+'</ul></div>';
- html+='<div><b>헤르메스</b>: '+e(h.latest||'미확인')+'까지 과거 재생 표시. 오늘 실제 추천·외부근거 학습 연결은 확인되지 않았습니다. 중단한 연구는 재시작하지 않았습니다.</div>';
+ html+='<div><b>기존 고정 연구</b>: '+e(h.latest||'미확인')+'까지 과거 재생 표시. 이 판의 일일 외부근거 학습 연결과 중단 연구는 그대로 보존합니다.</div>';
+ var v2=window.DAILY_CONTEXT3;
+ if(v2){
+  var c=v2.current,s=c&&c.source||{};
+  html+='<section id="daily-context3" aria-label="별도 근거 비교 3" style="margin:12px 0;padding:12px;border:1px solid #588570;border-radius:8px;overflow-wrap:anywhere">';
+  html+='<b style="font-size:15px">별도 근거 비교 3 · '+e(v2.D)+' → '+e(v2.T)+'</b>';
+  if(c){
+   html+='<div>실자료 입력·독립 재독 확인 · 관찰 3개씩 봉인. 기존 고정 연구와 다른 새 판입니다.</div>';
+   html+='<div>가격 '+e(c.D)+' · 장마감 원문 최신 '+e(s.latest_eod||'미수신')+' · 수신 장전원문 최신 '+e(s.latest_premarket||'미수신')+'. 예전 원문은 실제 날짜의 문맥이며 오늘 뉴스로 바꾸지 않습니다.</div>';
+   html+='<div>등록 '+e(c.registered_count)+'개 중 명시 후보 '+e(c.eligible_count)+'개 · 제외 '+e(c.excluded_count)+'개. 시장 전체 포괄성 증명은 아닙니다.</div>';
+   [['WITH_CONTEXT','출처문맥 추가'],['PRICE_ONLY','같은 가격만 비교'],['PRIOR_TURNOVER_TOP3','전일 거래대금 단순 비교']].forEach(function(a){
+    html+='<div style="padding:5px 0"><b>'+a[1]+'</b>: '+((c.picks||{})[a[0]]||[]).map(function(x){return e(x.name)+' <span style="opacity:.7">('+e(x.code)+')</span>';}).join(' · ')+'</div>';
+   });
+   html+='<div>초기 하루 사후 학습 '+e(c.model_trained_rows)+'사례 · 음성/양성 '+e((c.classes||[]).join('/'))+' · 의미어 원문이 붙은 후보 '+e(s.eligible_rows_with_semantic_quotes||0)+'개.</div>';
+   html+='<div style="color:#d6b381">'+(c.conditioned_two_class_model?'점수는 검증되지 않은 통계치입니다.':'양쪽 정답 사례가 아직 부족해 조건부 의미 점수를 주장하지 않습니다.')+' 선정 개선·매수 권고·실현 수익·전체 준비 95% 달성은 미검증입니다.</div>';
+   html+='<div style="font-size:11px;opacity:.75">봉인 '+e(c.sealed_at)+' · 입력 '+e(c.input_sha256.slice(0,16))+' · 실제 벡터 '+e(c.actual_vector_sha256.slice(0,16))+' · 모형 '+e(c.model_sha256.slice(0,16))+'</div>';
+  }else html+='<div>입력 대기. 빈칸을 정상 0이나 과거 명단으로 채우지 않습니다.</div><div>'+e(v2.reason||v2.state)+'</div>';
+  html+='<div style="font-size:11px;opacity:.8;margin-top:4px">발행사 사실인증과 원문 문맥 신호는 다릅니다. 여러 회사가 섞인 문장은 의미어 전파를 보류합니다. 새 예약·유료 호출·주문 없음. 실제 다음 무인 실행과 성능 개선은 별도 확인 대상입니다.</div></section>';
+ }
  html+='<div><b>옵시디언·공유기억</b>: '+(nr.length?e(nr.length)+'개 파일 전달·바이트 대조 영수증':'전달 영수증 확인 필요')+' · '+(o.workspace_open_path_ack===true?'날짜 노트의 앱 열린 경로 확인':'앱 열린 경로 미확인')+'. 특정 수정판 읽기·모델 학습 증거는 별도입니다.</div>';
  html+='<div style="font-size:11px;opacity:.8;margin-top:8px">관측 '+e(d.observed_at)+' · 원천 판본 '+e((d.source_revision_sha256||'').slice(0,16))+' · 당시 사용 가능시각은 별도 검증 · 관찰용, 매수추천 아님</div></details>';
  root.innerHTML=html;
