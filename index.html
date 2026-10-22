@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta name="robots" content="noindex,nofollow">
-<!-- 📱 천억 캘린더 폰 전체판 셸 · 자동 생성 · 원본 = 천억프로젝트_캘린더_안목시안.html (2026-10-22 07:45 · 25,394,481 bytes) · 만든 도구 = 주도주\_모바일전체\_셸_변환.py · ★매수신호 아님 -->
+<!-- 📱 천억 캘린더 폰 전체판 셸 · 자동 생성 · 원본 = 천억프로젝트_캘린더_안목시안.html (2026-10-22 20:00 · 25,395,769 bytes) · 만든 도구 = 주도주\_모바일전체\_셸_변환.py · ★매수신호 아님 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -645,8 +645,8 @@ main{max-width:1440px;margin:0 auto;padding:20px 24px;position:relative;z-index:
 
 <!-- 📱 폰 전체판 로더 (자동 · 규칙_v1.md §2-3) -->
 <script src="_로더.js?v=562e2cba"></script>
-<script src="조각/_색인.js?v=338c333c"></script>
-<script src="조각/_첫화면.js?v=dc7f87c9"></script>
+<script src="조각/_색인.js?v=5263f2ab"></script>
+<script src="조각/_첫화면.js?v=ba55a8f2"></script>
 <script src="통째/macro.js" onerror="console.warn('macro.js 미생성 - paper_시장모니터_매크로 실행 필요')"></script>
 <script src="통째/leaders_today.js" onerror="console.warn('leaders_today.js 미생성')"></script>
 <script src="통째/wordcloud.js" onerror="console.warn('wordcloud.js 미생성')"></script>
@@ -659,6 +659,8 @@ main{max-width:1440px;margin:0 auto;padding:20px 24px;position:relative;z-index:
 <!-- 📱 폰: 실측에서 안 읽혀 싣지 않음 = dashboard/data/market_recap.js -->
 <script src="통째/mindmap.js" onerror="console.warn('mindmap.js 미생성 — dashboard/build_mindmap.py 실행 필요')"></script>
 <script src="통째/signals.js" onerror="console.warn('signals.js 미생성 — dashboard/build_signals.py 실행 필요')"></script>
+<!-- 공통 종목명→코드 연결: 기존 최신 생태계 색인 재사용 · 선정/봉인 자료는 변경하지 않음 -->
+<script src="통째/생태계_색인.js" onerror="console.warn('종목 연결 색인 없음: 기존 이름 자료만 사용')"></script>
 <script src="https://d3js.org/d3.v7.min.js" onerror="console.warn('d3.js CDN 차단 — flex-wrap fallback 사용')"></script>
 <script src="통째/테마맵카드.js" onerror="console.warn('테마맵카드.js 미생성 - build_테마맵카드 실행')"></script>
 <script src="통째/테마분야.js" onerror="console.warn('테마분야.js 미생성 - build_테마분야 실행')"></script>
@@ -4542,7 +4544,7 @@ function renderLensBoard(){
 // ★ 사용자 2026-05-27 = 종목 상세 모달 (sec-leaders 카드 클릭 시). dashboard 카드 UI 재현 (PBR/12M/시총/월거래대금/매집점수/기업개요/일주월봉 차트).
 // ★ code가 invalid (nan / 빈 / 비6자리) 인지 = 데이터 생성 버그 종목 (예: 한성크린텍 강한주도테마 entry)
 function _isValidCode(code){
-  return typeof code === 'string' && /^\d{6}$/.test(code);
+  return typeof code === 'string' && /^[0-9A-Z]{6}$/.test(code);
 }
 function _findRev(code, name){
   const r = window.REVERSAL_DATA;
@@ -4957,10 +4959,11 @@ function showStockDetail(el, keepBack){
   const amStr = am >= 1000 ? (am/1000).toFixed(1) + '조' : am.toFixed(0) + '억';
   const rawCode = d.code || '';
   const name = d.name || '';
-  const rev = _findRev(rawCode, name);
-  const lat = _findLatest(rawCode, name);
-  // ★ code가 invalid (nan 등) 시 = lat/rev에서 actual code 가져옴 (네이버 차트/링크용)
-  const code = _isValidCode(rawCode) ? rawCode : (lat?.entry?.krStockCode || rev?.code || rawCode);
+  // 전달된 코드를 우선한다. 코드 없는 이름도 공통 색인으로 해석하며 중복 이름은 임의 복구하지 않는다.
+  const resolvedCode = _isValidCode(rawCode) ? rawCode : _nameToCode(name || rawCode);
+  const code = _isValidCode(resolvedCode) ? resolvedCode : rawCode;
+  const rev = _findRev(code, '');
+  const lat = _findLatest(code, '');
   // ★ 사용자 2026-05-28 = 데이터 시점 라벨 정직화 (오늘 X = 기준일·종가 명확). 오해 차단.
   const leaderDate = window.LEADERS_DATA?.기준일 || '';
   const latDate = lat?.dataDate || window.LATEST_DATA?.meta?.dataDate || '';
@@ -5541,9 +5544,24 @@ function toggleWatch(code,name){
   if (wb && wb.innerHTML) renderWatch();
 }
 function _nameToCode(name){
-  const SG = (window.SIGNALS_DATA||{}).stocks || {};
-  for (const c in SG){ if (SG[c].name === name) return c; }
-  return name;
+  // 화면 연결만: 최신 색인 우선, 옛 이름은 기존 자료로 보완. 중복·미확인은 추측하지 않는다.
+  const query = typeof name === 'string' ? name.trim() : '';
+  if (!query) return name;
+  if (_isValidCode(query)) return query;
+  const codes = new Set();
+  const add = c => { if (_isValidCode(c)) codes.add(c); };
+  const EI = (window.ECO_INDEX || {}).stocks || {};
+  for (const c of Object.keys(EI)){ if (Array.isArray(EI[c]) && EI[c][0] === query) add(c); }
+  if (codes.size) return codes.size === 1 ? Array.from(codes)[0] : name;
+  const SG = (window.SIGNALS_DATA || {}).stocks || {};
+  for (const c of Object.keys(SG)){ if (SG[c] && SG[c].name === query) add(c); }
+  for (const row of ((window.LATEST_DATA || {}).stocks || [])){
+    if (row && row.entry && row.entry.displayName === query) add(row.entry.krStockCode);
+  }
+  for (const row of ((window.REVERSAL_DATA || {}).stocks || [])){
+    if (row && row.name === query) add(row.code);
+  }
+  return codes.size === 1 ? Array.from(codes)[0] : name;
 }
 function _catalystSummary(code, name){
   // ★ 매수 시점 catalyst 스냅샷 = 테마catalyst + 물량risk/boon (forward 채점용·인지 기록)

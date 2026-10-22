@@ -1,6 +1,13 @@
 /* Separate 어사이드30 layer: existing Best calendar and strategies retained. */
 (function () {
   'use strict';
+  function publishRecoveryNote(k) {
+    const m=window.어사이드30_META, d=m&&(m.cutoff||m.D);
+    if(!d||String(d).replace(/-/g,'')<'20261021')return '';
+    const late=(!k||k==='2026-10-22')?' · 2026-10-22 복구분은 장 시작 후 사후 재구성, 실제 아침 봉인 아님':'';
+    return '<div data-publish-recovery="30" style="margin:8px 0;padding:7px;border-left:3px solid #c59a58;color:#cbb48b;font-size:12px">채점판: 현재 정정가격 기준 · 정보기준 '+esc(String(d))+' · 원 게시 명단/선정 입력 보존 · 당시 원시가격 재현 아님 · 복구 전 채점판 별도 보관'+late+'</div>';
+  }
+
   if (window.__aside30Installed) return;
   if (['buildBestCell','renderBestMonthStrip','renderBestMeta','openBestDetail'].some(n => typeof window[n] !== 'function')) {
     console.error('어사이드30: 베스트 달력 함수 누락'); return;
@@ -44,7 +51,7 @@
     const result=oldMeta.apply(this,arguments), el=document.getElementById('best-meta'), m=window.어사이드30_META;
     if (!el || !m) return result;
     const s=m.september;
-    el.innerHTML+=`<div class="aside30-meta" style="margin-top:6px;color:${color}"><b>㉚ 어사이드30 · 합침매매법2</b> ${esc(m.period[0])}~${esc(m.period[1])} · ${m.days.toLocaleString()}칸 · 전체 ${m.all_candidates.toLocaleString()}건 · 상위 ${m.selected.toLocaleString()}건(하루 최대5)<br><span style="color:#ffaaa0">관찰용 · 검증문턱 미통과</span> · 9월 전체99/상위39 일치 · 9월 단독 모의장부: 완료 ${s.completed}건 · +20% ${s.target20}건 · 평균 ${pct(s.mean_net_pct)}<br>${m.latest_blocked?`<span style="color:#ffc454">${esc(m.next_date)} 새 후보 게시 중단 · ${esc(m.cutoff)} 갱신 ${m.fresh}/${m.recent}(${(m.freshness*100).toFixed(2)}%) · 95% 이상 및 전일자료 확인 필요</span>`:`${esc(m.next_date)} 예정 ${m.planned.length}종목 (${esc(m.planned.join(', ')||'없음')})`}<br><span style="color:#899fb4">과거 재적용은 당시 추천·새 맹검이 아닙니다. 다음 시가 조건부 진입 · +20% 익절 · 최대20거래일 · 비용0.45%p · 손절 기준 초과손실 가능 · 실제 계좌 아님</span></div>`;
+    el.innerHTML+=`<div class="aside30-meta" style="margin-top:6px;color:${color}"><b>㉚ 어사이드30 · 합침매매법2</b> ${esc(m.period[0])}~${esc(m.period[1])} · ${m.days.toLocaleString()}칸 · 전체 ${m.all_candidates.toLocaleString()}건 · 상위 ${m.selected.toLocaleString()}건(하루 최대5)<br><span style="color:#ffaaa0">관찰용 · 검증문턱 미통과</span> · 9월 전체99/상위39 일치 · 9월 단독 모의장부: 완료 ${s.completed}건 · +20% ${s.target20}건 · 평균 ${pct(s.mean_net_pct)}<br>${m.latest_blocked?`<span style="color:#ffc454">${esc(m.next_date)} 새 후보 게시 중단 · ${esc(m.cutoff)} 갱신 ${m.fresh}/${m.recent}(${(m.freshness*100).toFixed(2)}%) · 95% 이상 및 전일자료 확인 필요</span>`:`${esc(m.next_date)} 예정 ${m.planned.length}종목 (${esc(m.planned.join(', ')||'없음')})`}<br><span style="color:#899fb4">과거 재적용은 당시 추천·새 맹검이 아닙니다. 다음 시가 조건부 진입 · +20% 익절 · 최대20거래일 · 비용0.45%p · 손절 기준 초과손실 가능 · 실제 계좌 아님</span>${publishRecoveryNote()}</div>`;
     return result;
   };
   const oldDetail = window.openBestDetail;
@@ -58,7 +65,7 @@
     if (ov.style.display!=='flex')body.innerHTML=`<div style="font-size:18px;font-weight:bold">🏅 베스트 · ${esc(k)}</div>`;
     const previous=body.querySelector('[data-aside30-detail]');if(previous)previous.remove();
     const nc=row.all.filter(x=>x[1]).length;
-    let html=`<section data-aside30-detail style="margin-top:20px;color:${color}"><h3>㉚ 어사이드30 · 합침매매법2 · ${esc(k)}</h3><p>정보 기준 ${esc(row.signal)} 종가 · ${esc(source(k))}<br>전체 ${row.all.length}종목(합침 확인 ${nc} · 매듭 관찰 ${row.all.length-nc}) · 확인 신호 중 상위 ${row.a.length}종목. 관찰단계는 매수 확인 신호가 아닙니다.</p><p style="color:#ffaaa0">검증문턱 미통과 · 관찰용 · +20% 상승을 보장하지 않습니다.</p><p style="color:#899fb4">원문 지표를 조합한 별도 합침 규칙입니다. 원문 손절폭 7% 이내 우선 → 손절폭 → 거래대금 순. 매수일 시가가 전일 종가 +6% 초과, 점화가93% 이하 또는 단일가격봉이면 취소.<br>시가 진입가 +20% 익절 · 손절=max(점화가93%, 진입가93%) 종가 이탈 또는 MACD 중심선 하단 이탈 후 다음 시가 청산 · 최대20거래일 · 비용0.45%p.<br>아래 수익은 전체 기간에서 동일 종목 중복 진입을 억제한 모의장부입니다. 상단의 9월 단독 장부는 시작 시점이 달라 결과가 다를 수 있습니다. 결과 대기·자료 불명은 0%로 계산하지 않습니다. 손절 손실은 갭으로 7%를 넘을 수 있고 실제 체결은 확인되지 않았습니다.</p><div style="overflow-x:auto">`;
+    let html=`<section data-aside30-detail style="margin-top:20px;color:${color}"><h3>㉚ 어사이드30 · 합침매매법2 · ${esc(k)}</h3>${publishRecoveryNote(k)}<p>정보 기준 ${esc(row.signal)} 종가 · ${esc(source(k))}<br>전체 ${row.all.length}종목(합침 확인 ${nc} · 매듭 관찰 ${row.all.length-nc}) · 확인 신호 중 상위 ${row.a.length}종목. 관찰단계는 매수 확인 신호가 아닙니다.</p><p style="color:#ffaaa0">검증문턱 미통과 · 관찰용 · +20% 상승을 보장하지 않습니다.</p><p style="color:#899fb4">원문 지표를 조합한 별도 합침 규칙입니다. 원문 손절폭 7% 이내 우선 → 손절폭 → 거래대금 순. 매수일 시가가 전일 종가 +6% 초과, 점화가93% 이하 또는 단일가격봉이면 취소.<br>시가 진입가 +20% 익절 · 손절=max(점화가93%, 진입가93%) 종가 이탈 또는 MACD 중심선 하단 이탈 후 다음 시가 청산 · 최대20거래일 · 비용0.45%p.<br>아래 수익은 전체 기간에서 동일 종목 중복 진입을 억제한 모의장부입니다. 상단의 9월 단독 장부는 시작 시점이 달라 결과가 다를 수 있습니다. 결과 대기·자료 불명은 0%로 계산하지 않습니다. 손절 손실은 갭으로 7%를 넘을 수 있고 실제 체결은 확인되지 않았습니다.</p><div style="overflow-x:auto">`;
     html+=table(['순위','종목','신호','신규/관찰중','전일종가','점화가','원문 손절폭','에너지','상자 상단/하단','가정 진입가','손절가','+20% 목표가','모의 순수익','상태']);
     row.a.forEach(p=>{html+=cells([p.r,stock(p.c,k),esc(p.sig),esc(p.new),won(p.pc),won(p.ig),pct(p.risk),won(p.e),won(p.bu)+' / '+won(p.bl),won(p.entry),won(p.stop),won(p.target),pct(p.p),esc(status(p))+(p.exit?' · '+esc(p.exit):'')]);});
     html+='</table></div><details style="margin-top:12px"><summary>전체 후보 '+row.all.length+'종목 보기 · 확인/관찰 분리</summary><div style="overflow-x:auto">';

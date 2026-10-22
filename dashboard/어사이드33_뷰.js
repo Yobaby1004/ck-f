@@ -1,6 +1,13 @@
 /* Separate 어사이드33 layer: existing Best calendar and strategies retained. */
 (function () {
   'use strict';
+  function publishRecoveryNote(k) {
+    const m=window.어사이드33_META, d=m&&(m.cutoff||m.D);
+    if(!d||String(d).replace(/-/g,'')<'20261021')return '';
+    const late=(!k||k==='2026-10-22')?' · 2026-10-22 복구분은 장 시작 후 사후 재구성, 실제 아침 봉인 아님':'';
+    return '<div data-publish-recovery="33" style="margin:8px 0;padding:7px;border-left:3px solid #c59a58;color:#cbb48b;font-size:12px">채점판: 현재 정정가격 기준 · 정보기준 '+esc(String(d))+' · 원 게시 명단/선정 입력 보존 · 당시 원시가격 재현 아님 · 복구 전 채점판 별도 보관'+late+'</div>';
+  }
+
   if (window.__aside33Installed) return;
   if (['buildBestCell','renderBestMonthStrip','renderBestMeta','openBestDetail'].some(n => typeof window[n] !== 'function')) {
     console.error('어사이드33: 베스트 달력 함수 누락'); return;
@@ -44,7 +51,7 @@
     const result=oldMeta.apply(this,arguments), el=document.getElementById('best-meta'), m=window.어사이드33_META;
     if (!el || !m) return result;
     const s=m.september;
-    el.innerHTML+=`<div class="aside33-meta" style="margin-top:6px;color:${color}"><b>㉝ 어사이드33 · 캔들위매매법완성</b> ${esc(m.period[0])}~${esc(m.period[1])} · ${m.days.toLocaleString()}칸 · 전체 ${m.all_candidates.toLocaleString()}건 · 상위 ${m.selected.toLocaleString()}건(하루 최대5)<br><span style="color:#ffaaa0">관찰용 · 독립 수익검증 없음</span> · 9월 전체214/상위83 일치 · 9월 선정 신호별 모의채점: 완료 ${s.completed}건 · +20% ${s.target20}건 · 평균 ${pct(s.mean_net_pct)}<br>${m.latest_blocked?`<span style="color:#ffc454">${esc(m.next_date)} 새 후보 게시 중단 · ${esc(m.cutoff)} 갱신 ${m.fresh}/${m.recent}(${(m.freshness*100).toFixed(2)}%) · 95% 이상 및 전일자료 확인 필요</span>`:`${esc(m.next_date)} 예정 ${m.planned.length}종목 (${esc(m.planned.join(', ')||'없음')})`}<br><span style="color:#899fb4">2025년 이전은 2024년말 학습모델 재적용이며 당시 정보 명단이 아닙니다. 과거 재적용은 새 맹검이 아닙니다. 다음 시가 조건부 진입 · +20% 익절 · 최대20거래일 · 비용0.45%p · 점화가93% 손절 · 겹치는 신호별 채점 · 실제 계좌 아님</span></div>`;
+    el.innerHTML+=`<div class="aside33-meta" style="margin-top:6px;color:${color}"><b>㉝ 어사이드33 · 캔들위매매법완성</b> ${esc(m.period[0])}~${esc(m.period[1])} · ${m.days.toLocaleString()}칸 · 전체 ${m.all_candidates.toLocaleString()}건 · 상위 ${m.selected.toLocaleString()}건(하루 최대5)<br><span style="color:#ffaaa0">관찰용 · 독립 수익검증 없음</span> · 9월 전체214/상위83 일치 · 9월 선정 신호별 모의채점: 완료 ${s.completed}건 · +20% ${s.target20}건 · 평균 ${pct(s.mean_net_pct)}<br>${m.latest_blocked?`<span style="color:#ffc454">${esc(m.next_date)} 새 후보 게시 중단 · ${esc(m.cutoff)} 갱신 ${m.fresh}/${m.recent}(${(m.freshness*100).toFixed(2)}%) · 95% 이상 및 전일자료 확인 필요</span>`:`${esc(m.next_date)} 예정 ${m.planned.length}종목 (${esc(m.planned.join(', ')||'없음')})`}<br><span style="color:#899fb4">2025년 이전은 2024년말 학습모델 재적용이며 당시 정보 명단이 아닙니다. 과거 재적용은 새 맹검이 아닙니다. 다음 시가 조건부 진입 · +20% 익절 · 최대20거래일 · 비용0.45%p · 점화가93% 손절 · 겹치는 신호별 채점 · 실제 계좌 아님</span>${publishRecoveryNote()}</div>`;
     return result;
   };
   const oldDetail = window.openBestDetail;
@@ -58,7 +65,7 @@
     if (ov.style.display!=='flex')body.innerHTML=`<div style="font-size:18px;font-weight:bold">🏅 베스트 · ${esc(k)}</div>`;
     const previous=body.querySelector('[data-aside33-detail]');if(previous)previous.remove();
     const nc=row.all.filter(x=>x[1]).length;
-    let html=`<section data-aside33-detail style="margin-top:20px;color:${color}"><h3>㉝ 어사이드33 · 캔들위매매법완성 · ${esc(k)}</h3><p>정보 기준 ${esc(row.signal)} 종가 · ${esc(source(k))}<br>전체 ${row.all.length}종목 · 표본100건 충족 ${nc} · 상위 ${row.a.length}종목.</p><p style="color:#ffaaa0">관찰용 · +20% 확정 예측이 아닙니다. 음수 평균 구간도 포함합니다.</p><p style="color:#899fb4">원문 점화·가격표지지·계단재점화. 보통주·종가1000원·20일평균대금10억원·상한가근접 제외. 2024년말 동결표본100건 이상 구간에서 평균양수 우선→+20%익절 Wilson하한→거래대금 순 최대5.<br>다음시가 조건부 진입(+6%초과갭·점화가93%이하 시가·단일가격봉 취소) · +20% 익절 · 고정점화가93% 종가이탈 또는 중심선 하단이탈 후 다음시가손절 · 20거래일 · 비용0.45%p.<br>동결모델을 2025년 이전에 적용한 칸은 당시 정보로 선정한 기록이 아닙니다. 반복/겹치는 신호별 모의채점이며 실제 계좌·독립 거래가 아닙니다. 결과 대기·자료 불명은 0%로 계산하지 않습니다. 손절 손실은 갭·체결로 확대될 수 있습니다.</p><div style="overflow-x:auto">`;
+    let html=`<section data-aside33-detail style="margin-top:20px;color:${color}"><h3>㉝ 어사이드33 · 캔들위매매법완성 · ${esc(k)}</h3>${publishRecoveryNote(k)}<p>정보 기준 ${esc(row.signal)} 종가 · ${esc(source(k))}<br>전체 ${row.all.length}종목 · 표본100건 충족 ${nc} · 상위 ${row.a.length}종목.</p><p style="color:#ffaaa0">관찰용 · +20% 확정 예측이 아닙니다. 음수 평균 구간도 포함합니다.</p><p style="color:#899fb4">원문 점화·가격표지지·계단재점화. 보통주·종가1000원·20일평균대금10억원·상한가근접 제외. 2024년말 동결표본100건 이상 구간에서 평균양수 우선→+20%익절 Wilson하한→거래대금 순 최대5.<br>다음시가 조건부 진입(+6%초과갭·점화가93%이하 시가·단일가격봉 취소) · +20% 익절 · 고정점화가93% 종가이탈 또는 중심선 하단이탈 후 다음시가손절 · 20거래일 · 비용0.45%p.<br>동결모델을 2025년 이전에 적용한 칸은 당시 정보로 선정한 기록이 아닙니다. 반복/겹치는 신호별 모의채점이며 실제 계좌·독립 거래가 아닙니다. 결과 대기·자료 불명은 0%로 계산하지 않습니다. 손절 손실은 갭·체결로 확대될 수 있습니다.</p><div style="overflow-x:auto">`;
     html+=table(['순위','종목','신호','신규/관찰중','전일종가','점화가','학습표본','과거 평균순손익','Wilson 하한','가정 진입가','고정손절','+20% 목표','모의 순손익','상태']);
     row.a.forEach(p=>{html+=cells([p.r,stock(p.c,k),esc(p.sig),esc(p.new),won(p.pc),won(p.ig),p.tn,pct(p.mean)+(p.mean<0?' · 음수주의':''),p.wilson==null?'—':(p.wilson*100).toFixed(2)+'%',won(p.entry),won(p.stop),won(p.target),pct(p.p),esc(status(p))+(p.exit?' · '+esc(p.exit):'')]);});
     html+='</table></div><details style="margin-top:12px"><summary>전체 후보 '+row.all.length+'종목 보기 · 표본 미달도 보존</summary><div style="overflow-x:auto">';
