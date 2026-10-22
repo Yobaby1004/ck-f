@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta name="robots" content="noindex,nofollow">
-<!-- 📱 천억 캘린더 폰 전체판 셸 · 자동 생성 · 원본 = 천억프로젝트_캘린더_안목시안.html (2026-10-22 20:00 · 25,395,769 bytes) · 만든 도구 = 주도주\_모바일전체\_셸_변환.py · ★매수신호 아님 -->
+<!-- 📱 천억 캘린더 폰 전체판 셸 · 자동 생성 · 원본 = 천억프로젝트_캘린더_안목시안.html (2026-10-22 21:23 · 25,395,796 bytes) · 만든 도구 = 주도주\_모바일전체\_셸_변환.py · ★매수신호 아님 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7209,8 +7209,8 @@ function renderAiSchedPred() {
         var barW = Math.round(90 - i * 8);
         var reason = (pred.reasons && pred.reasons[i]) ? pred.reasons[i] : theme + ' 주도 예상';
         top5el.innerHTML +=
-          '<div class="pcard ' + RANK_CLS[i] + '">' +
-            '<div class="pcard-medal">' + MEDALS[i] + '</div>' +
+          '<div class="pcard ' + (RANK_CLS[i] || '') + '">' +
+            '<div class="pcard-medal">' + (MEDALS[i] || String(i + 1)) + '</div>' +
             '<div class="pcard-rank">TOP ' + (i+1) + '</div>' +
             '<div class="pcard-theme">' + theme + '</div>' +
             '<div class="pcard-bar-row">' +
@@ -11583,6 +11583,6 @@ function _악재경고Modal(k){
 <!-- 💸 돈의출처 화면 (2026-10-12 Aside Step 7) = 자료 dashboard/data/돈의출처.js · 화면 dashboard/돈의출처_뷰.js · 빌더 _돈의출처\build.py -->
 <script src="통째/돈의출처.js" onerror="console.warn('❌돈의출처.js 없음 - _돈의출처\\build.py')"></script>
 <script src="dashboard/돈의출처_뷰.js?v=20261012"></script>
-<script src="_로더_끝.js?v=8e79e322"></script>
+<script src="_로더_끝.js?v=44ab67ad"></script>
 </body>
 </html>

@@ -90,7 +90,8 @@
   먼저받고(['openMnlDetail', 'openMnlStay', 'ft5Search', 'ft5Pick'], function () { return 전기간('첫터치5_ARCHIVE').concat([['첫터치5_또닿음', '_전체']]); });
   먼저받고(['_themeFlowModal', 'detailDR', '_pick25MonthlyModal', '_pick25WeeklyModal'], function () { return [['THEMEFLOW', '_전체']]; });
   먼저받고(['js3Year'], function (dy) { return +dy ? 전기간('JS3_DAYS') : []; });
-  먼저받고(['js3Pick', 'js3CellBtn'], function () { return 전기간('JS3_DAYS'); });
+  // js3CellBtn은 처음부터 받는 채점_DAY로 HTML을 동기 반환한다. 이벤트용 비동기 래퍼로 감싸지 않는다.
+  먼저받고(['js3Pick'], function () { return 전기간('JS3_DAYS'); });
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (e.isIntersecting && e.target.__조각뷰) 확인(e.target.__조각뷰, true); });
