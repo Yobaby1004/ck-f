@@ -2,7 +2,23 @@
 (function(){
 'use strict';
 function e(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function installPremarketStatus(){
+ var original=window._premarketModal;if(typeof original!=='function'||original._dailyStatusWrapped)return;
+ function wrapped(ymd){
+  var result=original.apply(this,arguments);
+  try{
+   var p=(ymd&&window.PREMARKET_ARCHIVE&&window.PREMARKET_ARCHIVE[ymd])||window.PREMARKET||{},st=(p.우리||{}).자료상태||{};
+   var body=document.getElementById('stock-modal-body'),warnings=[];
+   if(st.grid_state&&st.grid_state!=='CURRENT')warnings.push('매집 보조 후보 미확정: 입력 '+(st.grid_asof||'미확인')+' / 필요 '+(st.expected_closed_day||'미확인')+'. 낡은 후보를 오늘 후보로 표시하지 않았습니다. 정상 0종목이라는 뜻이 아닙니다. 원본 기록은 보존했습니다.');
+   if((p.외부||{}).시장방향_상태)warnings.push(p.외부.시장방향_상태);
+   if(body&&warnings.length){var box=document.createElement('div');box.id='premarket-source-status';box.style.cssText='margin:10px;padding:12px;border:1px solid #a26750;border-radius:8px;color:#f2bd92;font-size:13px;line-height:1.6';box.textContent=warnings.join(' ');body.prepend(box);}
+  }catch(ignore){}
+  return result;
+ }
+ wrapped._dailyStatusWrapped=true;window._premarketModal=wrapped;
+}
 function render(){
+ installPremarketStatus();
  var d=window.DAILY_LINKAGE;if(!d)return;
  var root=document.getElementById('daily-linkage');
  if(!root){root=document.createElement('section');root.id='daily-linkage';root.setAttribute('aria-label','매일 원천과 연결 상태');var main=document.querySelector('main');if(!main)return;main.insertBefore(root,main.firstChild);}
@@ -15,6 +31,12 @@ function render(){
  html+='<div style="color:#e2ab83"><b>일봉 엄격검증</b>: '+(q.verified?'해당 날짜 행/명시 무거래 확인':'대기')+' · 날짜 행 '+e(q.local_target_rows==null?'미확인':q.local_target_rows)+' · 명시 거래량0 '+e(q.confirmed_no_trade==null?'미확인':q.confirmed_no_trade)+' · 공식 상폐 '+e(q.confirmed_inactive==null?'미확인':q.confirmed_inactive)+' · 미확정 '+e(q.unknown==null?'미확인':q.unknown)+'. 날짜가 최신이어도 자료 완전성과는 다릅니다.</div>';
  html+='<div style="color:#c7ae8a">등록 가격묶음 비율 '+e(r.price_group_percent)+'%는 진단값입니다. 전체 준비 95% 달성이나 선정 성능을 뜻하지 않습니다.</div>';
  html+='<div>마스터·급등 재사용 검증: '+Object.keys(r.compute_reuse_verified_now||{}).map(function(k){return e(k)+' '+(r.compute_reuse_verified_now[k]?'입출력 일치':'재검사 필요');}).join(' · ')+'</div>';
+ html+='<div style="margin:7px 0;color:#d6b381"><b>전체 준비율</b>: '+(r.end_to_end_percent==null?'미확정(필수 산출물·실제 재사용 시간 분모 필요)':e(r.end_to_end_percent)+'%')+' · 버튼 실측 '+e(d.button_observed_at||d.observed_at)+'</div>';
+ (d.auxiliary_inputs||[]).forEach(function(a){if(a.state!=='CURRENT')html+='<div style="color:#e2ab83">보조 입력 '+e(a.item)+': '+e(a.asof||'미확인')+' / 기대 '+e(a.expected)+' · '+e(a.action||'확인 필요')+'</div>';});
+ var align=((cs.context_v2||{}).source_alignment)||{};
+ if(align.state==='NOT_ALIGNED')html+='<div style="padding:7px;border:1px solid #a26750;color:#f2bd92"><b>새 원문 수신과 선정 소비 불일치</b>: '+e((align.issues||[]).join(' / '))+' · 기존 봉인 유지, 소급 재선정 안 함</div>';
+ var phases=(d.operational_receipts||{}).latest_phase_events||{};
+ if(Object.keys(phases).length)html+='<div>실제 단계 기록: '+Object.keys(phases).map(function(k){return e(k)+' '+e(phases[k].status)+' ('+e(phases[k].recorded_at)+')';}).join(' · ')+' · 후처리 성공이 앞 단계 실패·정시성 증거를 덮지 않습니다.</div>';
  html+='<div style="overflow:auto;max-height:410px;margin-top:8px"><table style="border-collapse:collapse;width:100%;min-width:660px;text-align:left"><thead><tr><th>기능</th><th>자료일</th><th>기대일</th><th>확인 상태와 한계</th></tr></thead><tbody>';
  (d.buttons||[]).forEach(function(x){html+='<tr style="border-top:1px solid rgba(255,255,255,.09)"><td style="padding:5px">'+e(x.k)+'</td><td>'+e(x.d||'미확인')+'</td><td>'+e(x.기대||'수동 입력')+'</td><td>'+e(x.판정)+' '+e(x.비고||'')+'</td></tr>';});
  html+='</tbody></table></div>';
